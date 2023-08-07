@@ -140,7 +140,7 @@ dependencies {
         implementation project(libraryProjectName)
     } else {
         ///Todo: properly specify all flavour implementations of the androidLibrary
-        implementation 'org.opendatakit:androidlibrary_lib:1.0.1:snapshotBasicRelease@aar'
+        implementation(group:'org.opendatakit', name: 'androidlibrary_lib', classifier: 'snapshotBasicRelease', version: '+', ext: 'aar')
 //
 //        demoImplementation(group: groupId, name: libraryDemoArtifactName, classifier: demoRelease,
 //                version: latestVersion, ext: 'aar')
@@ -155,7 +155,8 @@ dependencies {
     } else {
 
         ///Todo: properly specify all flavour implementations of the androidCommon
-        implementation 'org.opendatakit:androidcommon:1.0.0:snapshotBasicRelease@aar'
+        implementation(group:'org.opendatakit', name: 'androidcommon', classifier: 'snapshotBasicRelease', version: '+', ext: 'aar')
+
 
 //        demoImplementation(group: groupId, name: commonDemoArtifactName, classifier: demoRelease,
 //                version: latestVersion, ext: 'aar')
