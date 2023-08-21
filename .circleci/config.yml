@@ -33,10 +33,22 @@ commands:
             BRANCH=<<parameters.branch-name>>
 
             # Make the API request to get the artifacts
+            
+            # response=$(curl -sSL -u ${CIRCLECI_TOKEN}: -X GET \
+            # "https://circleci.com/api/v2/project/github/${CIRCLE_USERNAME}/${REPO_NAME}/pipeline?branch=${BRANCH}&filter=completed" | jq -r '.items[0].id')
+
             response=$(curl -sSL -u ${CIRCLECI_TOKEN}: -X GET \
-            "https://circleci.com/api/v2/project/github/${CIRCLE_USERNAME}/${REPO_NAME}/pipeline?branch=${BRANCH}&filter=completed" | jq -r '.items[0].id')
+            "https://circleci.com/api/v2/project/github/${CIRCLE_USERNAME}/${REPO_NAME}/pipeline?branch=${BRANCH}&filter=completed" ) 
+            
+         
+            | jq -r '.items[0].id')
 
             echo "response is $response"
+
+            # Parse response
+            response = $($response  | jq -r '.items[0].id')
+
+            echo "parsed response is $response"
               
             # Extract the pipeline ID from the response
             pipeline_id=$(echo $response | jq -r '.id')
@@ -82,10 +94,10 @@ jobs:
       - run:
           name: Update Package list
           command: sudo apt-get update
-      - run:
-          name: Install the latest Android SDK
-          command: |
-            sdkmanager --update
+      # - run:
+      #     name: Install the latest Android SDK
+      #     command: |
+      #       sdkmanager --update
       - get-artifacts:
           description: Get artifacts from the 'Services' repository
           circleci-token: $API_TOKEN
