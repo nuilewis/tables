@@ -55,12 +55,10 @@ commands:
               -u "${CIRCLECI_TOKEN}:" \
               )
 
-
-            
             echo "Artifacts response is $artifacts_reponse"
             
             #Parse the artifacts response to get the artifacts urls
-            artifacts_url=$(echo "$artifacts_reponse" | jq -r '.items[].url)
+            artifacts_url=$(echo "$artifacts_reponse" | jq -r '.items[].url')
             
             echo "Artifacts Urls are $artifacts_url"
             # curl -sSL -u ${CIRCLECI_TOKEN}: -X GET \
