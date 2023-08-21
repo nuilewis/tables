@@ -44,7 +44,7 @@ commands:
 
             
             # Parse response and get the latest pipeline id
-            pipeline_id = $($response | jq -r '.items[0].id')
+            pipeline_id = $(echo "$response" | jq -r '.items[0].id')
 
             echo "pipeline id is $pipeline_id
         
@@ -57,12 +57,12 @@ commands:
 
 
             
-            echo artifacts_reponse
+            echo "Artifacts response is $artifacts_reponse"
             
             #Parse the artifacts response to get the artifacts urls
-            artifacts_url = artifacts_reponse | jq -r '.items[].url
+            artifacts_url = (echo "$artifacts_reponse" | jq -r '.items[].url)
             
-            echo $artufacts_url
+            echo "Artifacts Urls are $artifacts_url"
             # curl -sSL -u ${CIRCLECI_TOKEN}: -X GET \
             #   "https://circleci.com/api/v2/pipeline/${pipeline_id}/artifacts" | jq -r '.items[].url'
             
