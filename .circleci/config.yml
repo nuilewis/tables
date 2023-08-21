@@ -50,7 +50,7 @@ commands:
         
 
             # Make the API request to get the artifacts for the latest completed pipeline
-            artifacts_reponse = $( curl --location --request GET "https://circleci.com/api/v2/pipeline/${pipeline_id}/artifacts" \
+            artifacts_reponse=$( curl --location --request GET "https://circleci.com/api/v2/pipeline/${pipeline_id}/artifacts" \
               --header 'Content-Type: application/json' \
               -u "${CIRCLECI_TOKEN}:" \
               )
