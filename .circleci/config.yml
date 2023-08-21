@@ -26,7 +26,7 @@ commands:
           name: Get Artifacts
           command: |
             # Set your CircleCI API token
-            CIRCLECI_TOKEN=${parameters.circleci_token}
+            CIRCLECI_TOKEN=<<parameters.circleci_token>>
 
             # Set the repository and branch
             REPO_NAME=${parameters.repo_name}
