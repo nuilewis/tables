@@ -32,19 +32,19 @@ commands:
             REPO_NAME=<<parameters.repo-name>>
             BRANCH=<<parameters.branch-name>>
 
-            # Make the API request to get the artifacts
+            # Make the API request to get the pipelines of the Services repository
 
             # response=$(curl -sSL -u ${CIRCLECI_TOKEN}: -X GET \
             # "https://circleci.com/api/v2/project/github/${CIRCLE_USERNAME}/${REPO_NAME}/pipeline?branch=${BRANCH}&filter=completed" | jq -r '.items[0].id')
 
             response=$(curl -sSL -u ${CIRCLECI_TOKEN}: -X GET \
-            "https://circleci.com/api/v2/project/github/${CIRCLE_USERNAME}/${REPO_NAME}/pipeline?branch=${BRANCH}&filter=completed" ) 
+            "https://circleci.com/api/v2/project/github/${CIRCLE_USERNAME}/${REPO_NAME}/pipeline?branch=${BRANCH}&filter=completed") 
 
             echo "response is $response"
 
             
             # Parse response and get the latest pipeline id
-            pipeline_id = $response  | jq -r '.items[0].id'
+            pipeline_id = $($response  | jq -r '.items[0].id')
 
             echo "pipeline id is $pipeline_id
         
