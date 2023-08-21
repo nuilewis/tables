@@ -84,7 +84,7 @@ commands:
               -u "${CIRCLECI_TOKEN}:" \
               )
             ARTIFACT_PATHS=$(echo "$ARTIFACTS" | jq -r '.items[].path')  
-            ARTIFACT_URLS=$(echo "$JOBS" | jq -r '.items[].url')
+            ARTIFACT_URLS=$(echo "$ARTIFACTS" | jq -r '.items[].url')
        
             echo "artifact path is $ARTIFACT_PATHS"
             echo "artifact url is $ARTIFACT_URLS"
