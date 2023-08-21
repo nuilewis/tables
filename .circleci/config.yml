@@ -35,6 +35,8 @@ commands:
             # Make the API request to get the artifacts
             response=$(curl -sSL -u ${CIRCLECI_TOKEN}: -X GET \
             "https://circleci.com/api/v2/project/github/${CIRCLE_USERNAME}/${CIRCLE_USERNAME}/pipeline?branch=${BRANCH}&filter=completed" | jq -r '.items[0].id')
+
+            echo "response is $response"
               
             # Extract the pipeline ID from the response
             pipeline_id=$(echo $response | jq -r '.id')
