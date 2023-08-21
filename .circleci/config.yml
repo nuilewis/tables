@@ -18,13 +18,13 @@ commands:
 
     steps:
       - run:
-          name: install jq
-          command: |
-            sudo apt-get update
-            sudo apt-get install jq
-      - run:
           name: Get Artifacts
           command: |
+          
+            # Install jq for json parsing
+            sudo apt-get update
+            sudo apt-get install jq
+
             # Set your CircleCI API token
             CIRCLECI_TOKEN=<<parameters.circleci-token>>
 
@@ -32,16 +32,14 @@ commands:
             REPO_NAME=<<parameters.repo-name>>
             BRANCH=<<parameters.branch-name>>
 
-            
             # Make the API request to get the pipelines of the repository
-
             PIPELINES=$(
             curl --location --request GET "https://circleci.com/api/v2/project/github/${CIRCLE_USERNAME}/${REPO_NAME}/pipeline?branch=${BRANCH}&filter=completed" \
              --header 'Content-Type: application/json' \
               -u "${CIRCLECI_TOKEN}:" \
             ) 
-            echo "response pipelines is $PIPELINES"
             PIPELINE_ID=$(echo "$PIPELINES" | jq -r '.items[0].id')
+            PIPELINE_NUMBER=$(echo "$PIPELINES" | jq -r '.items[0].number')
             echo "pipeline id is $PIPELINE_ID"
 
             # Make the API request to get Workflow using Pipeline ID
@@ -90,9 +88,10 @@ commands:
             echo "artifact url is $ARTIFACT_URLS"
 
             # Download artifacts
-            for artifact in $ARTIFACT_URLS; do
-              filename=$(basename $artifact)
-              curl -sSL -o $filename $artifact
+            for artifact_url in $ARTIFACT_URLS; do
+              # Split the given string and extract only the string after the last forward slash ("/") and use as a filename to save
+              filename=$(basename $artifact_url)
+              curl -sSL -o $filename $artifact_url
             done
 orbs:
   android: circleci/android@2.3.0
@@ -146,8 +145,9 @@ jobs:
       - run:
           name: Install necessary dependencies ie 'Services' app from downloaded artifacts
           command: |
-            # Install Services App on emulator
-            adb install services_app/build/outputs/apk/snapshotBasic/debug/services_app-snapshot-basic-debug.apk
+
+            # Install Services App on emulator, Will use the `services_app-snapshot-basic-debug.apk` artifact downloaded from the get artifact jobs
+            adb install services_app-snapshot-basic-debug.apk
             adb shell pm list packages
 
       - android/run-tests:
