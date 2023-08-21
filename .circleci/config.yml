@@ -42,25 +42,32 @@ commands:
 
             echo "response is $response"
 
-            # Parse response
-            response = $($response  | jq -r '.items[0].id')
+            
+            # Parse response and get the latest pipeline id
+            pipeline_id = $response  | jq -r '.items[0].id'
 
-            echo "parsed response is $response"
-              
-            # Extract the pipeline ID from the response
-            pipeline_id=$(echo $response | jq -r '.id')
-            echo "Pipeline Id= $pipeline_id"
+            echo "pipeline id is $pipeline_id
+        
 
             # Make the API request to get the artifacts for the latest completed pipeline
-            artifacts = $( curl --location --request GET "https://circleci.com/api/v2/pipeline/${pipeline_id}/artifacts" | jq -r '.items[].url \
+            artifacts_reponse = $( curl --location --request GET "https://circleci.com/api/v2/pipeline/${pipeline_id}/artifacts" \
               --header 'Content-Type: application/json' \
               -u "${CIRCLECI_TOKEN}:" \
               )
+
+
+            
+            echo artifacts_reponse
+            
+            #Parse the artifacts response to get the artifacts urls
+            artifacts_url = artifacts_reponse | jq -r '.items[].url
+            
+            echo $artufacts_url
             # curl -sSL -u ${CIRCLECI_TOKEN}: -X GET \
             #   "https://circleci.com/api/v2/pipeline/${pipeline_id}/artifacts" | jq -r '.items[].url'
             
             # Download artifacts
-            for artifact in $artifacts; do
+            for artifact in $artifacts_url; do
               filename=$(basename $artifact)
               curl -sSL -o $filename $artifact
             done
