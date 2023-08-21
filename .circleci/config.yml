@@ -46,6 +46,7 @@ commands:
             pipeline_id=$(echo "$response" | jq -r '.items[0].id')
 
             echo "pipeline id is $pipeline_id"
+            echo "https://circleci.com/api/v2/pipeline/${pipeline_id}/artifact"
         
             # Make the API request to get the artifacts for the latest completed pipeline
             artifacts_reponse=$( 
