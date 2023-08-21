@@ -32,59 +32,65 @@ commands:
             REPO_NAME=<<parameters.repo-name>>
             BRANCH=<<parameters.branch-name>>
 
-            # Make the API request to get the pipelines of the Services repository
+            
+            # Make the API request to get the pipelines of the repository
 
-            response=$(
+            PIPELINES=$(
             curl --location --request GET "https://circleci.com/api/v2/project/github/${CIRCLE_USERNAME}/${REPO_NAME}/pipeline?branch=${BRANCH}&filter=completed" \
              --header 'Content-Type: application/json' \
               -u "${CIRCLECI_TOKEN}:" \
             ) 
-
-            echo "response is $response"
-
-            # Parse response and get the latest pipeline id
-            PIPELINE_ID=$(echo "$response" | jq -r '.items[0].id')
+            echo "response pipelines is $PIPELINES"
+            PIPELINE_ID=$(echo "$PIPELINES" | jq -r '.items[0].id')
             echo "pipeline id is $PIPELINE_ID"
 
-            # Get Workflow using Pipeline ID
-            WORKFLOW=$( 
+            # Make the API request to get Workflow using Pipeline ID
+            WORKFLOWs=$( 
             curl --location --request GET "https://circleci.com/api/v2/pipeline/${PIPELINE_ID}/workflow" \
               --header 'Content-Type: application/json' \
               -u "${CIRCLECI_TOKEN}:" \
               )
-            WORKFLOW_ID=$(echo "$WORKFLOW" | jq -r 'items[0].id')  
-            WORKFLOW_NAME=$(echo "$WORKFLOW" | jq -r 'items[0].name')
-            PIPELINE_NUMBER=$(echo "$WORKFLOW" | jq -r 'items[0].pipeline_number')
-            WORKFLOW_STATUS=$(echo "$WORKFLOW" | jq -r 'items[0].status')    
+            WORKFLOW_ID=$(echo "$WORKFLOWs" | jq -r '.items[0].id')  
+            WORKFLOW_NAME=$(echo "$WORKFLOWs" | jq -r '.items[0].name')
+            PIPELINE_NUMBER=$(echo "$WORKFLOWs" | jq -r '.items[0].pipeline_number')
+            WORKFLOW_STATUS=$(echo "$WORKFLOWs" | jq -r '.items[0].status')    
             echo "workflow id is $WORKFLOW_ID"
             echo "workflow name is $WORKFLOW_NAME"
             echo "workflow number is $WORKFLOW_NUMBER"
             echo "workflow status is $WORKFLOW_STATUS"
-
-            # Make the API request to get the artifacts for the latest completed pipeline    
-            # artifacts_reponse=$( 
-            # curl --location --request GET "https://circleci.com/api/v2/project/github/${CIRCLE_USERNAME}/${REPO_NAME}/pipeline/${pipeline_id}/artifacts" \
-            #   --header 'Content-Type: application/json' \
-            #   -u "${CIRCLECI_TOKEN}:" \
-            #   )
             
-            artifacts_reponse=$( 
-            curl --location --request GET "https://circleci.com/api/v2/project/github/${CIRCLE_USERNAME}/${REPO_NAME}/workflow/${workflow_id}/job/${job_id}/artifacts" \
+            # Make the API request to get Jobs from workflows
+            JOBS=$( 
+            curl --location --request GET "https://circleci.com/api/v2/workflow/${WORKFLOW_ID}/job" \
               --header 'Content-Type: application/json' \
               -u "${CIRCLECI_TOKEN}:" \
               )
+            JOB_ID=$(echo "$JOBS" | jq -r '.items[0].id')  
+            JOB_NAME=$(echo "$JOBS" | jq -r '.items[0].name')
+            JOB_NUMBER=$(echo "$JOBS" | jq -r '.items[0].job_number')
+            JOB_STATUS=$(echo "$JOBS" | jq -r '.items[0].status')
+            JOB_TYPE=$(echo "$JOBS" | jq -r '.items[0].type')
+            PROJECT_SLUG=$(echo "$JOBS" | jq -r '.items[0].project_slug')        
+            echo "job id is $JOB_ID"
+            echo "job name is $JOB_NAME"
+            echo "job number is $JOB_NUMBER"
+            echo "job status is $JOB_STATUS"
+            echo "project slug is $PROJECT_SLUG"
 
-            echo "Artifacts response is $artifacts_reponse"
-            
-            #Parse the artifacts response to get the artifacts urls
-            artifacts_url=$(echo "$artifacts_reponse" | jq -r '.items[].url')
-            
-            echo "Artifacts Urls are $artifacts_url"
-            # curl -sSL -u ${CIRCLECI_TOKEN}: -X GET \
-            #   "https://circleci.com/api/v2/pipeline/${pipeline_id}/artifacts" | jq -r '.items[].url'
-            
+            # Make the API request to get the artifacts from job
+            ARTIFACTS=$( 
+            curl --location --request GET "https://circleci.com/api/v2/project/github/$CIRCLE_USERNAME/$REPO_NAME/$JOB_NUMBER/artifacts" \
+              --header 'Content-Type: application/json' \
+              -u "${CIRCLECI_TOKEN}:" \
+              )
+            ARTIFACT_PATHS=$(echo "$ARTIFACTS" | jq -r '.items[].path')  
+            ARTIFACT_URLS=$(echo "$JOBS" | jq -r '.items[].url')
+       
+            echo "artifact path is $ARTIFACT_PATHS"
+            echo "artifact url is $ARTIFACT_URLS"
+
             # Download artifacts
-            for artifact in $artifacts_url; do
+            for artifact in $ARTIFACT_URLS; do
               filename=$(basename $artifact)
               curl -sSL -o $filename $artifact
             done
