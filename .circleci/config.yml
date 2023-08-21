@@ -46,7 +46,7 @@ commands:
             # Parse response and get the latest pipeline id
             pipeline_id=$(echo "$response" | jq -r '.items[0].id')
 
-            echo "pipeline id is $pipeline_id
+            echo "pipeline id is $pipeline_id"
         
 
             # Make the API request to get the artifacts for the latest completed pipeline
