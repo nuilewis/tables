@@ -53,8 +53,9 @@ commands:
             #   --header 'Content-Type: application/json' \
             #   -u "${CIRCLECI_TOKEN}:" \
             #   )
+            echo "https://circleci.com/api/v2/project/github/${CIRCLE_USERNAME}/${REPO_NAME}/pipeline/${pipeline_id}/artifact"
             artifacts_reponse=$( 
-            curl --location --request GET "https://circleci.com/api/v2/project/github/${CIRCLE_USERNAME}/${REPO_NAME}/pipeline/${pipeline_id}/artifact" \
+            curl --location --request GET "https://circleci.com/api/v2/project/github/${CIRCLE_USERNAME}/${REPO_NAME}/pipeline/${pipeline_id}/artifacts" \
               --header 'Content-Type: application/json' \
               -u "${CIRCLECI_TOKEN}:" \
               )
