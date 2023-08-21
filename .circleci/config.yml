@@ -46,16 +46,27 @@ commands:
             pipeline_id=$(echo "$response" | jq -r '.items[0].id')
 
             echo "pipeline id is $pipeline_id"
+
+            pipeline=$( 
+            curl --location --request GET "https://circleci.com/api/v2/project/github/${CIRCLE_USERNAME}/${REPO_NAME}/pipeline/${pipeline_id}" \
+              --header 'Content-Type: application/json' \
+              -u "${CIRCLECI_TOKEN}:" \
+              )
+
+            echo "pipeline object is $pipeline"
+            workflow_id=$(echo "$response" | jq -r '.workflow['jobs'][0].id')
+            job_id=44
         
             # Make the API request to get the artifacts for the latest completed pipeline
+    
             # artifacts_reponse=$( 
-            # curl --location --request GET "https://circleci.com/api/v2/pipeline/${pipeline_id}/artifact" \
+            # curl --location --request GET "https://circleci.com/api/v2/project/github/${CIRCLE_USERNAME}/${REPO_NAME}/pipeline/${pipeline_id}/artifacts" \
             #   --header 'Content-Type: application/json' \
             #   -u "${CIRCLECI_TOKEN}:" \
             #   )
-            echo "https://circleci.com/api/v2/project/github/${CIRCLE_USERNAME}/${REPO_NAME}/pipeline/${pipeline_id}/artifact"
+            
             artifacts_reponse=$( 
-            curl --location --request GET "https://circleci.com/api/v2/project/github/${CIRCLE_USERNAME}/${REPO_NAME}/pipeline/${pipeline_id}/artifacts" \
+            curl --location --request GET "https://circleci.com/api/v2/project/github/${CIRCLE_USERNAME}/${REPO_NAME}/workflow/${workflow_id}/job/${job_id}/artifacts" \
               --header 'Content-Type: application/json' \
               -u "${CIRCLECI_TOKEN}:" \
               )
