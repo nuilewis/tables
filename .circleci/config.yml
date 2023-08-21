@@ -1,5 +1,61 @@
 version: 2.1
 
+##--------Command to download Artifacts with optional paramters-----------##
+commands:
+  get-artifacts:
+    parameters:
+      description:
+        type: string
+      circleci_token:
+        type: string
+        default: $API_TOKEN
+      repo_name:
+        type: string
+      branch:
+        type: string
+        default: $CIRCLE_BRANCH
+    description: ${{paramters.description}}
+
+    steps:
+      - run:
+          name: install jq
+          command: |
+            sudo apt-get update
+            sudo apt-get install jq
+      - run:
+          name: Get Artifacts
+          command: |
+            # Set your CircleCI API token
+            CIRCLECI_TOKEN=${{paramters.circleci_token}}
+
+            # Set the repository and branch
+            REPO_NAME=${{paramters.repo_name}}
+            BRANCH= $CIRCLE_BRANCH
+
+            # Make the API request to get the artifacts
+            response=$(
+              curl --location --request GET "https://circleci.com/api/v2/project/github/${CIRCLE_USERNAME}/${CIRCLE_USERNAME}/pipeline?branch=${BRANCH}&filter=completed" | jq -r '.items[0].id' \
+              --header 'Content-Type: application/json' \
+              -u "${CIRCLECI_TOKEN}:" \
+              )
+              
+            # Extract the pipeline ID from the response
+            pipeline_id=$(echo $response | jq -r '.id')
+            echo "Pipeline Id= $pipeline_id"
+
+            # Make the API request to get the artifacts for the latest completed pipeline
+            artifacts = $(  curl --location --request GET "https://circleci.com/api/v2/pipeline/${pipeline_id}/artifacts" | jq -r '.items[].url \
+              --header 'Content-Type: application/json' \
+              -u "${CIRCLECI_TOKEN}:" \
+              )
+            # curl -sSL -u ${CIRCLECI_TOKEN}: -X GET \
+            #   "https://circleci.com/api/v2/pipeline/${pipeline_id}/artifacts" | jq -r '.items[].url'
+            
+            # Download artifacts
+            for artifact in $artifacts; do
+              filename=$(basename $artifact)
+              curl -sSL -o $filename $artifact
+            done
 orbs:
   android: circleci/android@2.3.0
 jobs:
@@ -31,6 +87,11 @@ jobs:
           name: Install the latest Android SDK
           command: |
             sdkmanager --update
+      - get-artifacts:
+          description: Get artifacts from the 'Services' repository
+          circleci_token: $API_TOKEN
+          repo_name: 'services'
+          branch: $CIRCLE_BRANCH
 
       - android/create-avd:
           avd-name: customavd
@@ -43,6 +104,13 @@ jobs:
           no-window: true
           restore-gradle-cache-prefix: v1
           post-emulator-launch-assemble-command: ./gradlew assemble
+
+      - run:
+          name: Install necessary dependencies ie 'Services' app from downloaded artifacts
+          command: |
+            # Install Services App on emulator
+            adb install services_app/build/outputs/apk/snapshotBasic/debug/services_app-snapshot-basic-debug.apk
+            adb shell pm list packages
 
       - android/run-tests:
           test-command: ./gradlew test
@@ -85,37 +153,6 @@ jobs:
       - run:
           name: Build Services
           command: ./gradlew assemble
-
-  deploy:
-    executor:
-      name: android/android-docker
-      tag: 2023.06.1
-    steps:
-      - checkout
-      - run:
-          name: Install OpenJDK 8
-          command: |
-            sudo apt-get update && sudo apt-get install -y openjdk-8-jdk
-            sudo update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
-            sudo update-alternatives --set javac /usr/lib/jvm/java-8-openjdk-amd64/bin/javac
-            echo 'export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64"' >> $BASH_ENV
-            java -version
-      - run:
-          name: Chmod Permissions
-          command: sudo chmod +x gradlew
-      - android/restore-gradle-cache:
-          cache-prefix: v1
-      - run:
-          name: Download Dependencies
-          command: ./gradlew androidDependencies
-      - android/save-gradle-cache:
-          cache-prefix: v1
-      #      - run:
-      #          name: Publish library
-      #          command: ./gradlew publish
-      - run:
-          name: Publish Tables Build
-          command: echo "Todo, figure out how we would go about publishing the build artifacts"
 
 
 workflows:
