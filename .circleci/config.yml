@@ -14,7 +14,7 @@ commands:
       branch:
         type: string
         default: $CIRCLE_BRANCH
-    description: ${{parameters.description}}
+    description: ${parameters.description}
 
     steps:
       - run:
@@ -26,10 +26,10 @@ commands:
           name: Get Artifacts
           command: |
             # Set your CircleCI API token
-            CIRCLECI_TOKEN=${{parameters.circleci_token}}
+            CIRCLECI_TOKEN=${parameters.circleci_token}
 
             # Set the repository and branch
-            REPO_NAME=${{parameters.repo_name}}
+            REPO_NAME=${parameters.repo_name}
             BRANCH= $CIRCLE_BRANCH
 
             # Make the API request to get the artifacts
@@ -44,7 +44,7 @@ commands:
             echo "Pipeline Id= $pipeline_id"
 
             # Make the API request to get the artifacts for the latest completed pipeline
-            artifacts = $(  curl --location --request GET "https://circleci.com/api/v2/pipeline/${pipeline_id}/artifacts" | jq -r '.items[].url \
+            artifacts = $( curl --location --request GET "https://circleci.com/api/v2/pipeline/${pipeline_id}/artifacts" | jq -r '.items[].url \
               --header 'Content-Type: application/json' \
               -u "${CIRCLECI_TOKEN}:" \
               )
