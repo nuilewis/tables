@@ -6,15 +6,15 @@ commands:
     parameters:
       description:
         type: string
-      circleci_token:
+      circleci-token:
         type: string
         default: $API_TOKEN
-      repo_name:
+      repo-name:
         type: string
-      branch:
+      branch-name:
         type: string
         default: $CIRCLE_BRANCH
-    description: ${parameters.description}
+    description: <<parameters.description>>
 
     steps:
       - run:
@@ -26,11 +26,11 @@ commands:
           name: Get Artifacts
           command: |
             # Set your CircleCI API token
-            CIRCLECI_TOKEN=<<parameters.circleci_token>>
+            CIRCLECI_TOKEN=<<parameters.circleci-token>>
 
             # Set the repository and branch
-            REPO_NAME=${parameters.repo_name}
-            BRANCH= $CIRCLE_BRANCH
+            REPO_NAME=<<parameters.repo-name>>
+            BRANCH=<<parameters.branch-name>>
 
             # Make the API request to get the artifacts
             response=$(
@@ -89,9 +89,9 @@ jobs:
             sdkmanager --update
       - get-artifacts:
           description: Get artifacts from the 'Services' repository
-          circleci_token: $API_TOKEN
-          repo_name: 'services'
-          branch: $CIRCLE_BRANCH
+          circleci-token: $API_TOKEN
+          repo-name: 'services'
+          branch-name: $CIRCLE_BRANCH
 
       - android/create-avd:
           avd-name: customavd
