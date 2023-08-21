@@ -35,7 +35,7 @@ commands:
             # Make the API request to get the artifacts
             response=$(
               curl --location --request GET "https://circleci.com/api/v2/project/github/${CIRCLE_USERNAME}/${CIRCLE_USERNAME}/pipeline?branch=${BRANCH}&filter=completed" | jq -r '.items[0].id' \
-              --header 'Content-Type: application/json' \
+              # --header 'Content-Type: application/json' \
               -u "${CIRCLECI_TOKEN}:" \
               )
               
