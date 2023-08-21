@@ -33,15 +33,12 @@ commands:
             BRANCH=<<parameters.branch-name>>
 
             # Make the API request to get the artifacts
-            
+
             # response=$(curl -sSL -u ${CIRCLECI_TOKEN}: -X GET \
             # "https://circleci.com/api/v2/project/github/${CIRCLE_USERNAME}/${REPO_NAME}/pipeline?branch=${BRANCH}&filter=completed" | jq -r '.items[0].id')
 
             response=$(curl -sSL -u ${CIRCLECI_TOKEN}: -X GET \
             "https://circleci.com/api/v2/project/github/${CIRCLE_USERNAME}/${REPO_NAME}/pipeline?branch=${BRANCH}&filter=completed" ) 
-            
-         
-            | jq -r '.items[0].id')
 
             echo "response is $response"
 
