@@ -195,7 +195,7 @@ commands:
             cd ~
             ls -d */
             cd project/app-designer/
-            grunt pushadb
+            grunt adbpush
 
                     
 orbs:
