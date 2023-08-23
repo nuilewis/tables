@@ -194,7 +194,7 @@ commands:
           command: |
             cd ~
             ls -d */
-            cd app-designer/
+            cd project/app-designer/
             grunt pushadb
 
                     
