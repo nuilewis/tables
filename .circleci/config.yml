@@ -93,8 +93,34 @@ commands:
               filename=$(basename $artifact_url)
               curl -sSL -o $filename $artifact_url
             done
+  push-appdesigner-files-to-device:
+    description: Clone and push the necessary ODK-X App Designer files to the emulator prior to testing Tables
+    steps:
+      - run:
+          name: clone app designer repository to environemt
+          command: |
+            git clone -b "$CIRCLE_BRANCH" "https://github.com/$GITHUB_ACTOR/app-designer.git"
+           # echo "git clone -b "$CIRCLE_BRANCH" "https://$GITHUB_TOKEN@github.com/$GITHUB_ACTOR/app-designer.git""
+          #cd app-designer
+      - node/install
+      - run:
+          name: Run node --version & npm --version
+          command: |
+            node --version
+            npm --version
+      - run:
+          name: Install grunt
+          command: |
+            npm install -g grunt-cli
+            grunt --version
+            npm install grunt --save-dev
+      - run:
+          name: Push Files to Emulator
+          command: grunt pushadb
+                    
 orbs:
   android: circleci/android@2.3.0
+  node: circleci/node@5.1.0
 jobs:
   test:
     description: Runs unit tests and instrumented tests on the Tables app
@@ -130,6 +156,12 @@ jobs:
           repo-name: 'services'
           branch-name: $CIRCLE_BRANCH
 
+      - get-artifacts:
+          description: Get artifacts from the 'Survey' repository
+          circleci-token: $API_TOKEN
+          repo-name: 'survey'
+          branch-name: $CIRCLE_BRANCH
+
       - android/create-avd:
           avd-name: customavd
           install: true
@@ -141,14 +173,26 @@ jobs:
           no-window: true
           restore-gradle-cache-prefix: v1
           post-emulator-launch-assemble-command: ./gradlew assemble
-
+      
+      # Install Dependncies to emulator
       - run:
-          name: Install necessary dependencies ie 'Services' app from downloaded artifacts
+          name: Install 'Services' app from downloaded artifacts to emulator
           command: |
 
             # Install Services App on emulator, Will use the `services_app-snapshot-basic-debug.apk` artifact downloaded from the get artifact jobs
             adb install services_app-snapshot-basic-debug.apk
             adb shell pm list packages
+            # Install Services app to emulator
+      - run:
+          name: Install 'Survey' app from downloaded artifacts to emulator
+          command: |
+
+            # Install Survey App on emulator, Will use the `survey_app-demo-basic-debug.apk` artifact downloaded from the get artifact jobs
+            adb install survey_app-demo-basic-debug.apk
+            adb shell pm list packages
+
+      # Runs command to push the ODK-X App Designer files to the emulator
+      - push-appdesigner-files-to-device
 
       - android/run-tests:
           test-command: ./gradlew test
