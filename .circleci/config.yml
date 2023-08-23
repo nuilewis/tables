@@ -63,9 +63,9 @@ commands:
             # Parse pipeline list into a list of strings
             PIPELINES_LIST=()
 
-            while IFS= read -r line; do
+            while IFS= read -r -d $'\n' line; do
               PIPELINES_LIST+=("$line")
-            done < <$(echo "$PIPELINES_RESPONSE" | jq -r '.items[]' | jq -r '@sh')
+            done < <(echo "$PIPELINES_RESPONSE" | jq -r '.items[]' | jq -r '@base64')
 
             # for item in $(echo "$PIPELINES_RESPONSE" | jq -r '.items[]' | jq -r '@sh''); do
             #   PIPELINES_LIST+=("$item")
@@ -76,7 +76,9 @@ commands:
 
             echo "pipeline_lis is $PIPELINES_LIST"
 
-            for pipeline in ${PIPELINES_LIST[@]}; do
+            for pipeline_base64 in "${PIPELINES_LIST[@]}"; do
+
+              pipeline=$(echo "$pipeline_base64" | base64 -d)
 
               echo "Running pipeline for loop"
               echo "pipeline json structure is "
