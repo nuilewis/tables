@@ -38,6 +38,8 @@ commands:
              --header 'Content-Type: application/json' \
               -u "${CIRCLECI_TOKEN}:" \
             ) 
+
+            echo "pipeline response is $PIPELINES"
             PIPELINE_ID=$(echo "$PIPELINES" | jq -r '.items[0].id')
             PIPELINE_NUMBER=$(echo "$PIPELINES" | jq -r '.items[0].number')
             echo "pipeline id is $PIPELINE_ID"
