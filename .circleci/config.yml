@@ -106,7 +106,8 @@ commands:
           command: |
             git clone -b "$CIRCLE_BRANCH" "https://github.com/$GITHUB_ACTOR/app-designer.git"
             ls -d */
-            cd ~project/app-designer
+            cd pp-designer/
+            ls -d */
            # echo "git clone -b "$CIRCLE_BRANCH" "https://$GITHUB_TOKEN@github.com/$GITHUB_ACTOR/app-designer.git""
       - node/install
       - run:
