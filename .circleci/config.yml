@@ -58,15 +58,21 @@ commands:
             # break from the loop
             # use that job id and job number to now get the artifact
 
-            echo "pipeline response is $PIPELINES"
+            echo "pipeline response is $PIPELINES_RESPONSE"
+
+            # Parse pipeline list into a list of strings
+            PIPELINES_LIST=()
+            while IFS= read -r line; do
+              PIPELINES_LIST+=("$line")
+            done <<< "$(echo "$PIPELINES_RESPONSE" | jq -r '.items[] | @sh')"
+
             
             # parse  pipeline response json into a list
-            PIPELINES_LIST=$(echo "$PIPELINES_RESPONSE" | jq -r '.items[]') 
+            # PIPELINES_LIST=$(echo "$PIPELINES_RESPONSE" | jq -r '.items[]') 
 
             echo "pipeline_lis is $PIPELINES_LIST"
 
-            for pipeline in $PIPELINES_LIST; do
-
+            for pipeline in ${PIPELINES_LIST[@]}; do
 
               echo "Running pipeline for loop"
               echo "pipeline json structure is "
