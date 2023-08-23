@@ -252,7 +252,7 @@ jobs:
           avd-name: customavd
           no-window: true
           restore-gradle-cache-prefix: v1
-          post-emulator-launch-assemble-command: ./gradlew assemble
+          post-emulator-launch-assemble-command: ""
       
       # Install Dependncies to emulator
       - run:
