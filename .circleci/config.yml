@@ -62,8 +62,8 @@ commands:
 
             # Parse pipeline list into a list of strings
             PIPELINES_LIST=()
-            
-            for item in $(echo "$PIPELINES_RESPONSE" | jq -r '.items[]); do
+
+            for item in $(echo "$PIPELINES_RESPONSE" | jq -r '.items[]'); do
               PIPELINES_LIST+=("$item")
               done
 
