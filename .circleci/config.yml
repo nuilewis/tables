@@ -58,8 +58,6 @@ commands:
             # break from the loop
             # use that job id and job number to now get the artifact
 
-            # echo "pipeline response is $PIPELINES_RESPONSE"
-
             # Parse pipeline list into a list of strings
             # Use a while loop, to loop over each pipeline object in the 'items' list from the response json,
             # and we then encode the pipeline objects in Base64 format using the @base64 filter to avoid bash error with parsing certain characters that cannot be properly escaped for the shell.
@@ -122,6 +120,10 @@ commands:
 
                   JOB_STATUS=$(echo "$job" | jq -r '.status')
                   JOB_TYPE=$(echo "$job" | jq -r '.type') 
+
+                  echo "current job status is $JOB_STATUS"
+                  echo "current job type is $JOB_TYPE"
+            
 
                    if [ "$JOB_STATUS" = "success" ] && [ "$JOB_TYPE" = "build" ]; then
                         echo "Found a successful 'Build' job"
