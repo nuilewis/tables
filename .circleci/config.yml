@@ -43,7 +43,7 @@ commands:
             PIPELINE_ID=$(echo "$PIPELINES" | jq -r '.items[0].id')
             PIPELINE_NUMBER=$(echo "$PIPELINES" | jq -r '.items[0].number')
             echo "pipeline id is $PIPELINE_ID"
-            echo "pipeline id is $PIPELINE_NUMBER"
+            echo "pipeline number is $PIPELINE_NUMBER"
 
             # Make the API request to get Workflow using Pipeline ID
             WORKFLOWS=$( 
@@ -103,14 +103,6 @@ commands:
   push-appdesigner-files-to-device:
     description: Clone and push the necessary ODK-X App Designer files to the emulator prior to testing Tables
     steps:
-      - run:
-          name: clone app designer repository to environemt
-          command: |
-            git clone -b "$CIRCLE_BRANCH" "https://github.com/$GITHUB_ACTOR/app-designer.git"
-            ls -d */
-            cd app-designer/
-            ls -d */
-           # echo "git clone -b "$CIRCLE_BRANCH" "https://$GITHUB_TOKEN@github.com/$GITHUB_ACTOR/app-designer.git""
       - node/install
       - run:
           name: Run node --version & npm --version
@@ -122,7 +114,16 @@ commands:
           command: |
             npm install -g grunt-cli
             grunt --version
+      - run:
+          name: clone app designer repository to environemt
+          command: |
+            git clone -b "$CIRCLE_BRANCH" "https://github.com/$GITHUB_ACTOR/app-designer.git"
+            ls -d */
+            cd app-designer/
+            ls -d */
             npm install grunt --save-dev
+           # echo "git clone -b "$CIRCLE_BRANCH" "https://$GITHUB_TOKEN@github.com/$GITHUB_ACTOR/app-designer.git""
+
       - run:
           name: Push Files to Emulator
           command: grunt pushadb
