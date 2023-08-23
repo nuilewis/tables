@@ -142,30 +142,30 @@ commands:
                         echo "Successful job type is $SUCCESSFUL_JOB_TYPE"
                         break 2
                   else
-                     echo "job is unsucesseful, going to the next"    
+                     echo "job is unsucesseful, check next job the next"    
                   fi
                   done
             done
 
             
             # Make the API request to get the artifacts from job
-            # ARTIFACTS=$( 
-            # curl --location --request GET "https://circleci.com/api/v2/project/github/$CIRCLE_USERNAME/$REPO_NAME/$SUCCESSFUL_JOB_NUMBER/artifacts" \
-            #   --header 'Content-Type: application/json' \
-            #   -u "${CIRCLECI_TOKEN}:" \
-            #   )
-            # ARTIFACT_PATHS=$(echo "$ARTIFACTS" | jq -r '.items[].path')  
-            # ARTIFACT_URLS=$(echo "$ARTIFACTS" | jq -r '.items[].url')
+            ARTIFACTS=$( 
+            curl --location --request GET "https://circleci.com/api/v2/project/github/$CIRCLE_USERNAME/$REPO_NAME/$SUCCESSFUL_JOB_NUMBER/artifacts" \
+              --header 'Content-Type: application/json' \
+              -u "${CIRCLECI_TOKEN}:" \
+              )
+            ARTIFACT_PATHS=$(echo "$ARTIFACTS" | jq -r '.items[].path')  
+            ARTIFACT_URLS=$(echo "$ARTIFACTS" | jq -r '.items[].url')
        
-            # echo "artifact path is $ARTIFACT_PATHS"
-            # echo "artifact url is $ARTIFACT_URLS"
+            echo "artifact path is $ARTIFACT_PATHS"
+            echo "artifact url is $ARTIFACT_URLS"
 
             # Download artifacts
-            # for artifact_url in $ARTIFACT_URLS; do
-            #   # Split the given string and extract only the string after the last forward slash ("/") and use as a filename to save
-            #   filename=$(basename $artifact_url)
-            #   curl -sSL -o $filename $artifact_url
-            # done
+            for artifact_url in $ARTIFACT_URLS; do
+              # Split the given string and extract only the string after the last forward slash ("/") and use as a filename to save
+              filename=$(basename $artifact_url)
+              curl -sSL -o $filename $artifact_url
+            done
   push-appdesigner-files-to-device:
     description: Clone and push the necessary ODK-X App Designer files to the emulator prior to testing Tables
     steps:
