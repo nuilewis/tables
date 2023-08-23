@@ -41,21 +41,24 @@ commands:
             PIPELINE_ID=$(echo "$PIPELINES" | jq -r '.items[0].id')
             PIPELINE_NUMBER=$(echo "$PIPELINES" | jq -r '.items[0].number')
             echo "pipeline id is $PIPELINE_ID"
+            echo "pipeline id is $PIPELINE_NUMBER"
 
             # Make the API request to get Workflow using Pipeline ID
-            WORKFLOWs=$( 
+            WORKFLOWS=$( 
             curl --location --request GET "https://circleci.com/api/v2/pipeline/${PIPELINE_ID}/workflow?branch=${BRANCH}&filter=completed" \
               --header 'Content-Type: application/json' \
               -u "${CIRCLECI_TOKEN}:" \
               )
-            WORKFLOW_ID=$(echo "$WORKFLOWs" | jq -r '.items[0].id')  
-            WORKFLOW_NAME=$(echo "$WORKFLOWs" | jq -r '.items[0].name')
-            PIPELINE_NUMBER=$(echo "$WORKFLOWs" | jq -r '.items[0].pipeline_number')
-            WORKFLOW_STATUS=$(echo "$WORKFLOWs" | jq -r '.items[0].status')    
+            echo "workflow response is $WORKFLOW"
+            WORKFLOW_ID=$(echo "$WORKFLOWS" | jq -r '.items[0].id')  
+            WORKFLOW_NAME=$(echo "$WORKFLOWS" | jq -r '.items[0].name')
+            PIPELINE_NUMBER=$(echo "$WORKFLOWS" | jq -r '.items[0].pipeline_number')
+            WORKFLOW_STATUS=$(echo "$WORKFLOWS" | jq -r '.items[0].status')    
             echo "workflow id is $WORKFLOW_ID"
             echo "workflow name is $WORKFLOW_NAME"
             echo "workflow number is $WORKFLOW_NUMBER"
             echo "workflow status is $WORKFLOW_STATUS"
+            echo "second pipeline number is $PIPELINE_NUMBER"
             
             # Make the API request to get Jobs from workflows
             JOBS=$( 
@@ -63,6 +66,8 @@ commands:
               --header 'Content-Type: application/json' \
               -u "${CIRCLECI_TOKEN}:" \
               )
+
+            echo "job response is $JOBS"
             JOB_ID=$(echo "$JOBS" | jq -r '.items[0].id')  
             JOB_NAME=$(echo "$JOBS" | jq -r '.items[0].name')
             JOB_NUMBER=$(echo "$JOBS" | jq -r '.items[0].job_number')
@@ -161,6 +166,9 @@ jobs:
           circleci-token: $API_TOKEN
           repo-name: 'survey'
           branch-name: $CIRCLE_BRANCH
+      
+      # Runs command to push the ODK-X App Designer files to the emulator
+      - push-appdesigner-files-to-device
 
       - android/create-avd:
           avd-name: customavd
@@ -191,8 +199,7 @@ jobs:
             adb install survey_app-snapshot-basic-debug.apk
             adb shell pm list packages
 
-      # Runs command to push the ODK-X App Designer files to the emulator
-      - push-appdesigner-files-to-device
+
 
       - android/run-tests:
           test-command: ./gradlew test
