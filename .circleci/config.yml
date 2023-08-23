@@ -65,7 +65,7 @@ commands:
 
             while IFS= read -r line; do
               PIPELINES_LIST+=("$line")
-            done < <(echo "$PIPELINES_RESPONSE" | jq -r '.items[]' | jq -r '@sh')
+            done < <"$(echo "$PIPELINES_RESPONSE" | jq -r '.items[]' | jq -r '@sh')"
 
             # for item in $(echo "$PIPELINES_RESPONSE" | jq -r '.items[]' | jq -r '@sh''); do
             #   PIPELINES_LIST+=("$item")
