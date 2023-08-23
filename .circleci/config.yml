@@ -112,7 +112,7 @@ commands:
                 done < <(echo "$JOBS_RESPONSE" | jq -r '.items[]' | jq -r '@base64')
 
                 # Run another for loop in the jobs to get only the build jobs, since we have multiple jobs, but most often have only one workflow
-                for job_base64 in "${JOBS_LIST[@]}""; do
+                for job_base64 in "${JOBS_LIST[@]}"; do
 
                   echo "job as base64 structure is $job"
                   job=$(echo "$job_base64" | base64 -d)
