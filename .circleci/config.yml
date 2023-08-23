@@ -242,9 +242,6 @@ jobs:
           repo-name: 'survey'
           branch-name: $CIRCLE_BRANCH
       
-      # Runs command to push the ODK-X App Designer files to the emulator
-      - push-appdesigner-files-to-device
-
       - android/create-avd:
           avd-name: customavd
           install: true
@@ -255,7 +252,7 @@ jobs:
           avd-name: customavd
           no-window: true
           restore-gradle-cache-prefix: v1
-          post-emulator-launch-assemble-command: ./gradlew assemble
+          # post-emulator-launch-assemble-command: ./gradlew assemble
       
       # Install Dependncies to emulator
       - run:
@@ -274,7 +271,8 @@ jobs:
             adb install survey_app-snapshot-basic-debug.apk
             adb shell pm list packages
 
-
+      # Runs command to push the ODK-X App Designer files to the emulator
+      - push-appdesigner-files-to-device
 
       - android/run-tests:
           test-command: ./gradlew test
@@ -283,6 +281,10 @@ jobs:
           test-command: ./gradlew connectedAndroidTest
       - android/save-gradle-cache:
           cache-prefix: v1
+
+      - store_artifacts:
+          name: Store Test Results
+          path: tables_app/build/outputs/androidTest-results
 
   build:
     docker:
@@ -315,8 +317,12 @@ jobs:
       - android/save-gradle-cache:
           cache-prefix: v1
       - run:
-          name: Build Services
+          name: Build Tables
           command: ./gradlew assemble
+
+      - store_artifacts:
+          name: Store Build Artifacts
+          path: tables_app/build/outputs/apk
 
 
 workflows:
