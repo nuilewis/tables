@@ -65,7 +65,10 @@ commands:
 
             for pipeline in $PIPELINES_LIST; do
 
+
               echo "Running pipeline for loop"
+              echo "pipeline json structure is "
+              echo "$pipeline"
 
               PIPELINE_ID=$(echo "$pipeline" | jq -r '.id')
               PIPELINE_NUMBER=$(echo "$pipeline" | jq -r '.number')
