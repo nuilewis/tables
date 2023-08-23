@@ -105,7 +105,8 @@ commands:
           name: clone app designer repository to environemt
           command: |
             git clone -b "$CIRCLE_BRANCH" "https://github.com/$GITHUB_ACTOR/app-designer.git"
-            cd app-designer
+            ls -d */
+            cd ~project/app-designer
            # echo "git clone -b "$CIRCLE_BRANCH" "https://$GITHUB_TOKEN@github.com/$GITHUB_ACTOR/app-designer.git""
       - node/install
       - run:
