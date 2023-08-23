@@ -127,10 +127,13 @@ commands:
             ls -d */
             npm install grunt --save-dev
            # echo "git clone -b "$CIRCLE_BRANCH" "https://$GITHUB_TOKEN@github.com/$GITHUB_ACTOR/app-designer.git""
-
       - run:
           name: Push Files to Emulator
-          command: grunt pushadb
+          command: |
+            cd ~
+            cd app-designer/
+            grunt pushadb
+
                     
 orbs:
   android: circleci/android@2.3.0
