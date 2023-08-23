@@ -34,13 +34,12 @@ commands:
 
             # Make the API request to get the pipelines of the repository
             PIPELINES=$(
-            curl --location --request GET "https://circleci.com/api/v2/project/github/${CIRCLE_USERNAME}/${REPO_NAME}/pipeline?branch=${BRANCH}&filter=completed" \
+            curl --location --request GET "https://circleci.com/api/v2/project/github/${CIRCLE_USERNAME}/${REPO_NAME}/pipeline?branch=${BRANCH}&status=success" \
              --header 'Content-Type: application/json' \
               -u "${CIRCLECI_TOKEN}:" \
             ) 
 
-            #echo "pipeline response is $PIPELINES"
-            SUCCESSFUL_PIPELINES=$(echo "$PIPELINES" | jq '.items[] | select(.status=="success")')
+            echo "pipeline response is $PIPELINES"
             PIPELINE_ID=$(echo "$PIPELINES" | jq -r '.items[0].id')
             PIPELINE_NUMBER=$(echo "$PIPELINES" | jq -r '.items[0].number')
             echo "pipeline id is $PIPELINE_ID"
@@ -49,12 +48,12 @@ commands:
 
             # Make the API request to get Workflow using Pipeline ID
             WORKFLOWS=$( 
-            curl --location --request GET "https://circleci.com/api/v2/pipeline/${PIPELINE_ID}/workflow?branch=${BRANCH}&filter=completed" \
+            curl --location --request GET "https://circleci.com/api/v2/pipeline/${PIPELINE_ID}/workflow" \
               --header 'Content-Type: application/json' \
               -u "${CIRCLECI_TOKEN}:" \
               )
-            echo "workflow response is $WORKFLOWS"
-            SUCCESSFUL_WORKFLOWS=$(echo "$WORKFLOWS" | jq'.items[] | select(.status=="success"))
+           
+            #  SUCCESSFUL_WORKFLOWS=$(echo "$WORKFLOWS" | jq'.items[] | select(.status=="success"))
             echo "succesful workflows is $SUCCESSFUL_WORKFLOWS"
             WORKFLOW_ID=$(echo "$WORKFLOWS" | jq -r '.items[0].id')  
             WORKFLOW_NAME=$(echo "$WORKFLOWS" | jq -r '.items[0].name')
@@ -68,7 +67,7 @@ commands:
             
             # Make the API request to get Jobs from workflows
             JOBS=$( 
-            curl --location --request GET "https://circleci.com/api/v2/workflow/${WORKFLOW_ID}/job?branch=${BRANCH}&filter=completed" \
+            curl --location --request GET "https://circleci.com/api/v2/workflow/${WORKFLOW_ID}/job" \
               --header 'Content-Type: application/json' \
               -u "${CIRCLECI_TOKEN}:" \
               )
