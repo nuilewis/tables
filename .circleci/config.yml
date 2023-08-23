@@ -39,12 +39,13 @@ commands:
               -u "${CIRCLECI_TOKEN}:" \
             ) 
 
-            echo "pipeline response is $PIPELINES"
+            #echo "pipeline response is $PIPELINES"
             SUCCESSFUL_PIPELINES=$(echo "$PIPELINES" | jq '.items[] | select(.status=="success")')
-            PIPELINE_ID=$(echo "$SUCCESSFUL_PIPELINES" | jq -r '.items[0].id')
-            PIPELINE_NUMBER=$(echo "$SUCCESSFUL_PIPELINES" | jq -r '.items[0].number')
+            PIPELINE_ID=$(echo "$PIPELINES" | jq -r '.items[0].id')
+            PIPELINE_NUMBER=$(echo "$PIPELINES" | jq -r '.items[0].number')
             echo "pipeline id is $PIPELINE_ID"
             echo "pipeline number is $PIPELINE_NUMBER"
+            echo "successful pipelines is $SUCCESSFUL_PIPELINES"
 
             # Make the API request to get Workflow using Pipeline ID
             WORKFLOWS=$( 
@@ -52,7 +53,9 @@ commands:
               --header 'Content-Type: application/json' \
               -u "${CIRCLECI_TOKEN}:" \
               )
-            echo "workflow response is $WORKFLOW"
+            echo "workflow response is $WORKFLOWS"
+            SUCCESSFUL_WORKFLOWS=$(echo "$WORKFLOWS" | jq'.items[] | select(.status=="success"))
+            echo "succesful workflows is $SUCCESSFUL_WORKFLOWS"
             WORKFLOW_ID=$(echo "$WORKFLOWS" | jq -r '.items[0].id')  
             WORKFLOW_NAME=$(echo "$WORKFLOWS" | jq -r '.items[0].name')
             PIPELINE_NUMBER=$(echo "$WORKFLOWS" | jq -r '.items[0].pipeline_number')
