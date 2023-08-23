@@ -67,8 +67,11 @@ commands:
 
               echo "Running pipeline for loop"
 
-              PIPELINE_ID=$(echo "$pipeline" | jq -r '.items[0].id')
-              PIPELINE_NUMBER=$(echo "$pipeline" | jq -r '.items[0].number')
+              PIPELINE_ID=$(echo "$pipeline" | jq -r '.id')
+              PIPELINE_NUMBER=$(echo "$pipeline" | jq -r '.number')
+
+              echo "current pipeline id is $PIPELINE_ID"
+              echo "current pipeline number is $PIPELINE_NUMBER"
 
               # Make the API request to get Workflow using Pipeline ID for each pipeline
               WORKFLOWS=$( 
