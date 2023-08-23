@@ -40,8 +40,9 @@ commands:
             ) 
 
             echo "pipeline response is $PIPELINES"
-            PIPELINE_ID=$(echo "$PIPELINES" | jq -r '.items[0].id')
-            PIPELINE_NUMBER=$(echo "$PIPELINES" | jq -r '.items[0].number')
+            SUCCESSFUL_PIPELINES=$(echo "$PIPELINES" | jq '.items[] | select(.status=="success")')
+            PIPELINE_ID=$(echo "$SUCCESSFUL_PIPELINES" | jq -r '.items[0].id')
+            PIPELINE_NUMBER=$(echo "$SUCCESSFUL_PIPELINES" | jq -r '.items[0].number')
             echo "pipeline id is $PIPELINE_ID"
             echo "pipeline number is $PIPELINE_NUMBER"
 
