@@ -32,62 +32,100 @@ commands:
             REPO_NAME=<<parameters.repo-name>>
             BRANCH=<<parameters.branch-name>>
 
+            # Variables to hold successfule job details
+            SUCCESSFUL_JOB_ID=""
+            SUCCESSFUL_JOB_NAME=""
+            SUCCESSFUL_JOB_NUMBER=""
+            SUCCESSFUL_JOB_STATUS=""
+            SUCCESSFUL_JOB_TYPE="" 
+
+
+
             # Make the API request to get the pipelines of the repository
-            PIPELINES=$(
+            PIPELINES_RESPONSE=$(
             curl --location --request GET "https://circleci.com/api/v2/project/github/${CIRCLE_USERNAME}/${REPO_NAME}/pipeline?branch=${BRANCH}&status=success" \
              --header 'Content-Type: application/json' \
               -u "${CIRCLECI_TOKEN}:" \
             ) 
 
+            # Plan --
+            # get list of all pipelines
+            # run a for loop for each pipeline and get its workflows
+            # use the workflows to get the job numbers and job ids
+            # run a request to get the job details for each job
+            # check if the job is of type 'build' and status is 'successful'
+            # set that job id as the successful job id, and job number
+            # break from the loop
+            # use that job id and job number to now get the artifact
+
             echo "pipeline response is $PIPELINES"
-            PIPELINE_ID=$(echo "$PIPELINES" | jq -r '.items[0].id')
-            PIPELINE_NUMBER=$(echo "$PIPELINES" | jq -r '.items[0].number')
-            echo "pipeline id is $PIPELINE_ID"
-            echo "pipeline number is $PIPELINE_NUMBER"
-            echo "successful pipelines is $SUCCESSFUL_PIPELINES"
-
-            # Make the API request to get Workflow using Pipeline ID
-            WORKFLOWS=$( 
-            curl --location --request GET "https://circleci.com/api/v2/pipeline/${PIPELINE_ID}/workflow" \
-              --header 'Content-Type: application/json' \
-              -u "${CIRCLECI_TOKEN}:" \
-              )
-           
-            #  SUCCESSFUL_WORKFLOWS=$(echo "$WORKFLOWS" | jq'.items[] | select(.status=="success"))
-            echo "succesful workflows is $SUCCESSFUL_WORKFLOWS"
-            WORKFLOW_ID=$(echo "$WORKFLOWS" | jq -r '.items[0].id')  
-            WORKFLOW_NAME=$(echo "$WORKFLOWS" | jq -r '.items[0].name')
-            PIPELINE_NUMBER=$(echo "$WORKFLOWS" | jq -r '.items[0].pipeline_number')
-            WORKFLOW_STATUS=$(echo "$WORKFLOWS" | jq -r '.items[0].status')    
-            echo "workflow id is $WORKFLOW_ID"
-            echo "workflow name is $WORKFLOW_NAME"
-            echo "workflow number is $WORKFLOW_NUMBER"
-            echo "workflow status is $WORKFLOW_STATUS"
-            echo "second pipeline number is $PIPELINE_NUMBER"
             
-            # Make the API request to get Jobs from workflows
-            JOBS=$( 
-            curl --location --request GET "https://circleci.com/api/v2/workflow/${WORKFLOW_ID}/job" \
-              --header 'Content-Type: application/json' \
-              -u "${CIRCLECI_TOKEN}:" \
-              )
+            # parse  pipeline response json into a list
+            PIPELINES_LIST=$(echo "$PIPELINES_RESPONSE" | jq -r '.items[]') 
 
-            echo "job response is $JOBS"
-            JOB_ID=$(echo "$JOBS" | jq -r '.items[0].id')  
-            JOB_NAME=$(echo "$JOBS" | jq -r '.items[0].name')
-            JOB_NUMBER=$(echo "$JOBS" | jq -r '.items[0].job_number')
-            JOB_STATUS=$(echo "$JOBS" | jq -r '.items[0].status')
-            JOB_TYPE=$(echo "$JOBS" | jq -r '.items[0].type')
-            PROJECT_SLUG=$(echo "$JOBS" | jq -r '.items[0].project_slug')        
-            echo "job id is $JOB_ID"
-            echo "job name is $JOB_NAME"
-            echo "job number is $JOB_NUMBER"
-            echo "job status is $JOB_STATUS"
-            echo "project slug is $PROJECT_SLUG"
+            for pipeline in $PIPELINES_LIST; do
 
+              echo "Running pipeline for loop"
+
+              PIPELINE_ID=$(echo "$pipeline" | jq -r '.items[0].id')
+              PIPELINE_NUMBER=$(echo "$pipeline" | jq -r '.items[0].number')
+
+              # Make the API request to get Workflow using Pipeline ID for each pipeline
+              WORKFLOWS=$( 
+              curl --location --request GET "https://circleci.com/api/v2/pipeline/${PIPELINE_ID}/workflow" \
+                --header 'Content-Type: application/json' \
+                -u "${CIRCLECI_TOKEN}:" \
+                )
+           
+              WORKFLOW_ID=$(echo "$WORKFLOWS" | jq -r '.items[0].id')  
+              WORKFLOW_NAME=$(echo "$WORKFLOWS" | jq -r '.items[0].name')
+              WORKFLOW_STATUS=$(echo "$WORKFLOWS" | jq -r '.items[0].status')    
+              echo "workflow id is $WORKFLOW_ID"
+              echo "workflow name is $WORKFLOW_NAME"
+              echo "workflow status is $WORKFLOW_STATUS"
+
+              # Make the API request to get Jobs from workflows for each pipeline
+              JOBS_RESPONSE=$( 
+              curl --location --request GET "https://circleci.com/api/v2/workflow/${WORKFLOW_ID}/job" \
+                --header 'Content-Type: application/json' \
+                -u "${CIRCLECI_TOKEN}:" \
+                )
+
+                JOBS_LIST=$(echo "$JOBS_RESPONSE" | jq -r '.items[]') 
+
+                # Run another for loop in the jobs to get only the build jobs, since we have multiple jobs, but most often have only one workflow
+                for job in $JOBS_LIST; do
+
+                  echo "Running job for loop"
+                  JOB_STATUS=$(echo "$job" | jq -r '.status')
+                  JOB_TYPE=$(echo "$job" | jq -r '.type') 
+
+                   if [ "$JOB_STATUS" = "success" ] && [ "$JOB_TYPE" = "build" ]; then
+                        echo "Found a successful 'Build' job"
+                        echo "Status: $status, Type: $type"
+
+                        SUCCESSFUL_JOB_ID=$(echo "$job" | jq -r '.id')  
+                        SUCCESSFUL_JOB_NAME=$(echo "$job" | jq -r '.name')
+                        SUCCESSFUL_JOB_NUMBER=$(echo "$job" | jq -r '.job_number')
+                        SUCCESSFUL_JOB_STATUS=$(echo "$job" | jq -r '.status')
+                        SUCCESSFUL_JOB_TYPE=$(echo "$job" | jq -r '.type') 
+
+                        echo "Successful job id is $SUCCESSFUL_JOB_ID"
+                        echo "Successful job name is $SUCCESSFUL_JOB_NAME"
+                        echo "Successful job number is $SUCCESSFUL_JOB_NUMBER"
+                        echo "Successful job status is $SUCCESSFUL_JOB_STATUS"
+                        echo "Successful job type is $SUCCESSFUL_JOB_TYPE"
+                        break
+                    fi
+                done
+                break
+ 
+            done
+
+            
             # Make the API request to get the artifacts from job
             ARTIFACTS=$( 
-            curl --location --request GET "https://circleci.com/api/v2/project/github/$CIRCLE_USERNAME/$REPO_NAME/$JOB_NUMBER/artifacts" \
+            curl --location --request GET "https://circleci.com/api/v2/project/github/$CIRCLE_USERNAME/$REPO_NAME/$SUCCESSFUL_JOB_NUMBER/artifacts" \
               --header 'Content-Type: application/json' \
               -u "${CIRCLECI_TOKEN}:" \
               )
@@ -130,6 +168,7 @@ commands:
           name: Push Files to Emulator
           command: |
             cd ~
+            ls -d */
             cd app-designer/
             grunt pushadb
 
