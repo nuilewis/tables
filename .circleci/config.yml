@@ -61,34 +61,28 @@ commands:
             # echo "pipeline response is $PIPELINES_RESPONSE"
 
             # Parse pipeline list into a list of strings
+            # Use a while loop, to loop over each pipeline object in the 'items' list from the response json,
+            # and we then encode the pipeline objects in Base64 format using the @base64 filter to avoid bash error with parsing certain characters that cannot be properly escaped for the shell.
+            # Then, we decode each Base64-encoded object using the base64 -d command in the for loop.
             PIPELINES_LIST=()
 
             while IFS= read -r -d $'\n' line; do
               PIPELINES_LIST+=("$line")
             done < <(echo "$PIPELINES_RESPONSE" | jq -r '.items[]' | jq -r '@base64')
 
-            # for item in $(echo "$PIPELINES_RESPONSE" | jq -r '.items[]' | jq -r '@sh''); do
-            #   PIPELINES_LIST+=("$item")
-            #   done
-
-            # parse  pipeline response json into a list
-            # PIPELINES_LIST=$(echo "$PIPELINES_RESPONSE" | jq -r '.items[]') 
-
-            echo "pipeline_lis is $PIPELINES_LIST"
-
             for pipeline_base64 in "${PIPELINES_LIST[@]}"; do
 
+              echo "pipeline as base64 structure is $pipeline "
               pipeline=$(echo "$pipeline_base64" | base64 -d)
 
               echo "Running pipeline for loop"
-              echo "pipeline json structure is "
-              echo "$pipeline"
+              echo "Decoded pipeline as json structure is $pipeline"
 
               PIPELINE_ID=$(echo "$pipeline" | jq -r '.id')
               PIPELINE_NUMBER=$(echo "$pipeline" | jq -r '.number')
 
-              echo "current pipeline id is $PIPELINE_ID"
-              echo "current pipeline number is $PIPELINE_NUMBER"
+              echo "Current pipeline id is $PIPELINE_ID"
+              echo "Current pipeline number is $PIPELINE_NUMBER"
 
               # Make the API request to get Workflow using Pipeline ID for each pipeline
               WORKFLOWS=$( 
@@ -111,12 +105,21 @@ commands:
                 -u "${CIRCLECI_TOKEN}:" \
                 )
 
-                JOBS_LIST=$(echo "$JOBS_RESPONSE" | jq -r '.items[]') 
+                JOBS_LIST=()
+
+                while IFS= read -r -d $'\n' line; do
+                  JOBS_LIST+=("$line")
+                done < <(echo "$JOBS_RESPONSE" | jq -r '.items[]' | jq -r '@base64')
 
                 # Run another for loop in the jobs to get only the build jobs, since we have multiple jobs, but most often have only one workflow
-                for job in $JOBS_LIST; do
+                for job_base64 in "${JOBS_LIST[@]}""; do
+
+                  echo "job as base64 structure is $job"
+                  job=$(echo "$job_base64" | base64 -d)
 
                   echo "Running job for loop"
+                  echo "Decoded job as json structure is $job"
+
                   JOB_STATUS=$(echo "$job" | jq -r '.status')
                   JOB_TYPE=$(echo "$job" | jq -r '.type') 
 
