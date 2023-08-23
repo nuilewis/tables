@@ -125,7 +125,7 @@ commands:
                   echo "current job type is $JOB_TYPE"
             
 
-                   if [ "$JOB_STATUS" = "success" ] && [ "$JOB_TYPE" = "build" ]; then
+                  if [ "$JOB_STATUS" = "success" ] && [ "$JOB_TYPE" = "build" ]; then
                         echo "Found a successful 'Build' job"
                         echo "Status: $status, Type: $type"
 
@@ -140,11 +140,11 @@ commands:
                         echo "Successful job number is $SUCCESSFUL_JOB_NUMBER"
                         echo "Successful job status is $SUCCESSFUL_JOB_STATUS"
                         echo "Successful job type is $SUCCESSFUL_JOB_TYPE"
-                        break
-                    fi
-                done
-                break
- 
+                        break 2
+                  else
+                     echo "job is unsucesseful, going to the next"    
+                  fi
+                  done
             done
 
             
