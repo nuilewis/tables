@@ -44,7 +44,7 @@ commands:
 
             # Make the API request to get Workflow using Pipeline ID
             WORKFLOWs=$( 
-            curl --location --request GET "https://circleci.com/api/v2/pipeline/${PIPELINE_ID}/workflow" \
+            curl --location --request GET "https://circleci.com/api/v2/pipeline/${PIPELINE_ID}/workflow?branch=${BRANCH}&filter=completed" \
               --header 'Content-Type: application/json' \
               -u "${CIRCLECI_TOKEN}:" \
               )
@@ -59,7 +59,7 @@ commands:
             
             # Make the API request to get Jobs from workflows
             JOBS=$( 
-            curl --location --request GET "https://circleci.com/api/v2/workflow/${WORKFLOW_ID}/job" \
+            curl --location --request GET "https://circleci.com/api/v2/workflow/${WORKFLOW_ID}/job?branch=${BRANCH}&filter=completed" \
               --header 'Content-Type: application/json' \
               -u "${CIRCLECI_TOKEN}:" \
               )
@@ -187,8 +187,8 @@ jobs:
           name: Install 'Survey' app from downloaded artifacts to emulator
           command: |
 
-            # Install Survey App on emulator, Will use the `survey_app-demo-basic-debug.apk` artifact downloaded from the get artifact jobs
-            adb install survey_app-demo-basic-debug.apk
+            # Install Survey App on emulator, Will use the `survey_app-snapshot-basic-debug.apk` artifact downloaded from the get artifact jobs
+            adb install survey_app-snapshot-basic-debug.apk
             adb shell pm list packages
 
       # Runs command to push the ODK-X App Designer files to the emulator
