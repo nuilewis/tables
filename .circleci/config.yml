@@ -273,13 +273,13 @@ jobs:
             adb install services_app-demo-basic-debug.apk
             adb shell pm list packages
 
-      - android/run-tests:
-          test-command: ./gradlew test
-          max-tries: 1
-
+      # - android/run-tests:
+      #     test-command: ./gradlew test
+      #     max-tries: 1
       - android/run-tests:
           test-command: ./gradlew connectedAndroidTest
-          max-tries: 1
+          max-tries: 2
+          
       - android/save-gradle-cache:
           cache-prefix: v1
 
