@@ -287,6 +287,9 @@ jobs:
       - store_artifacts:
           name: Store Test Results
           path: tables_app/build/outputs/androidTest-results
+      - store_artifacts:
+          name: Store Test Reports
+          path: tables_app/build/reports
 
   build:
     docker:
