@@ -253,26 +253,24 @@ jobs:
           no-window: true
           restore-gradle-cache-prefix: v1
           post-emulator-launch-assemble-command: ""
-      
-      # Install Dependncies to emulator
-      - run:
-          name: Install 'Services' app from downloaded artifacts to emulator
-          command: |
-
-            # Install Services App on emulator, Will use the `services_app-snapshot-basic-debug.apk` artifact downloaded from the get artifact jobs
-            adb install services_app-snapshot-basic-debug.apk
-            adb shell pm list packages
-            # Install Services app to emulator
 
       # Runs command to push the ODK-X App Designer files to the emulator
-      - push-appdesigner-files-to-device    
+      - push-appdesigner-files-to-device   
 
+      # Install Dependncies to emulator
       - run:
           name: Install 'Survey' app from downloaded artifacts to emulator
           command: |
 
-            # Install Survey App on emulator, Will use the `survey_app-snapshot-basic-debug.apk` artifact downloaded from the get artifact jobs
-            adb install survey_app-snapshot-basic-debug.apk
+            # Install Survey App on emulator, Will use the `survey_app-demo-basic-debug.apk` artifact downloaded from the get artifact jobs
+            adb install survey_app-demo-basic-debug.apk
+            adb shell pm list packages
+      - run:
+          name: Install 'Services' app from downloaded artifacts to emulator
+          command: |
+
+            # Install Services App on emulator, Will use the `services_app-demo-basic-debug.apk` artifact downloaded from the get artifact jobs
+            adb install services_app-demo-basic-debug.apk
             adb shell pm list packages
 
       - android/run-tests:
