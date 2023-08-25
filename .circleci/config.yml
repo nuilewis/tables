@@ -263,6 +263,10 @@ jobs:
             adb install services_app-snapshot-basic-debug.apk
             adb shell pm list packages
             # Install Services app to emulator
+
+      # Runs command to push the ODK-X App Designer files to the emulator
+      - push-appdesigner-files-to-device    
+
       - run:
           name: Install 'Survey' app from downloaded artifacts to emulator
           command: |
@@ -270,9 +274,6 @@ jobs:
             # Install Survey App on emulator, Will use the `survey_app-snapshot-basic-debug.apk` artifact downloaded from the get artifact jobs
             adb install survey_app-snapshot-basic-debug.apk
             adb shell pm list packages
-
-      # Runs command to push the ODK-X App Designer files to the emulator
-      - push-appdesigner-files-to-device
 
       - android/run-tests:
           test-command: ./gradlew test
