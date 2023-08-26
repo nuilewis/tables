@@ -245,7 +245,7 @@ jobs:
       - android/create-avd:
           avd-name: customavd
           install: true
-          system-image: system-images;android-33;google_apis;x86_64
+          system-image: system-images;android-29;default;x86
           additional-args: --sdcard 2048M
 
       - android/start-emulator:
