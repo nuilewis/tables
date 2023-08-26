@@ -253,6 +253,31 @@ jobs:
           no-window: true
           restore-gradle-cache-prefix: v1
           post-emulator-launch-assemble-command: ./gradlew dependencies
+          
+      # Install VNC server
+      - run:
+          name: Install VNC server
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y xfce4 xfce4-goodies tightvncserver
+      
+      # Configure VNC server
+      - run:
+          name: Configure VNC server
+          command: |
+            echo "<vnc_password>" | vncpasswd -f > ~/.vnc/passwd
+            chmod 600 ~/.vnc/passwd
+            echo "#!/bin/bash" >> ~/.vnc/xstartup
+            echo "xrdb $HOME/.Xresources" >> ~/.vnc/xstartup
+            echo "startxfce4 &" >> ~/.vnc/xstartup
+            chmod +x ~/.vnc/xstartup
+            # Start VNC server
+      - run:
+          name: Start VNC server
+          command: |
+            vncserver :1 -geometry 1280x720 -depth 24
+            
+            #In the example above, we use the XFCE desktop environment and TightVNC server. Adjust the configuration according to your requirements.
 
       # Runs command to push the ODK-X App Designer files to the emulator
       - push-appdesigner-files-to-device   
