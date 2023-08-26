@@ -170,11 +170,11 @@ commands:
     description: Clone and push the necessary ODK-X App Designer files to the emulator prior to testing Tables
     steps:
       - node/install
-      - run:
-          name: Run node --version & npm --version
-          command: |
-            node --version
-            npm --version
+      # - run:
+      #     name: Run node --version & npm --version
+      #     command: |
+      #       node --version
+      #       npm --version
       - run:
           name: Install grunt
           command: |
@@ -195,7 +195,7 @@ commands:
             cd ~
             ls -d */
             cd project/app-designer/
-            grunt adbpush
+            grunt adbpush -f
 
                     
 orbs:
@@ -226,10 +226,10 @@ jobs:
       - run:
           name: Update Package list
           command: sudo apt-get update
-      # - run:
-      #     name: Install the latest Android SDK
-      #     command: |
-      #       sdkmanager --update
+      - run:
+          name: Install the latest Android SDK
+          command: |
+            sdkmanager --update
       - get-artifacts:
           description: Get artifacts from the 'Services' repository
           circleci-token: $API_TOKEN
@@ -252,7 +252,7 @@ jobs:
           avd-name: customavd
           no-window: true
           restore-gradle-cache-prefix: v1
-          post-emulator-launch-assemble-command: ""
+          post-emulator-launch-assemble-command: ./gradlew dependencies
 
       # Runs command to push the ODK-X App Designer files to the emulator
       - push-appdesigner-files-to-device   
@@ -278,7 +278,7 @@ jobs:
       #     max-tries: 1
       - android/run-tests:
           test-command: ./gradlew connectedAndroidTest
-          max-tries: 2
+          max-tries: 1
           
       - android/save-gradle-cache:
           cache-prefix: v1
