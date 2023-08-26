@@ -207,7 +207,7 @@ jobs:
     executor:
       name: android/android-machine
       resource-class: large
-      tag: 2023.07.1
+      tag: 2021.10.1
 
     steps:
       - checkout
@@ -253,7 +253,7 @@ jobs:
           no-window: true
           restore-gradle-cache-prefix: v1
           post-emulator-launch-assemble-command: ./gradlew dependencies
-          
+
       # Install VNC server
       - run:
           name: Install VNC server
