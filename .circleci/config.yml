@@ -222,7 +222,6 @@ jobs:
       - run:
           name: Chmod Permissions
           command: sudo chmod +x gradlew
-
       - run:
           name: Update Package list
           command: sudo apt-get update
@@ -251,34 +250,15 @@ jobs:
       - android/start-emulator:
           avd-name: customavd
           no-window: true
-          restore-gradle-cache-prefix: v1
-          post-emulator-launch-assemble-command: ./gradlew dependencies
+          # restore-gradle-cache-prefix: v1
+          post-emulator-launch-assemble-command: ''
+      - run:
+          name: Install 'Services' app from downloaded artifacts to emulator
+          command: |
 
-      # Install VNC server
-      - run:
-          name: Install VNC server
-          command: |
-            sudo apt-get update
-            sudo apt-get install -y xfce4 xfce4-goodies tightvncserver
-      
-      # Configure VNC server
-      - run:
-          name: Configure VNC server
-          command: |
-            echo "<vnc_password>" | vncpasswd -f > ~/.vnc/passwd
-            chmod 600 ~/.vnc/passwd
-            echo "#!/bin/bash" >> ~/.vnc/xstartup
-            echo "xrdb $HOME/.Xresources" >> ~/.vnc/xstartup
-            echo "startxfce4 &" >> ~/.vnc/xstartup
-            chmod +x ~/.vnc/xstartup
-            # Start VNC server
-      - run:
-          name: Start VNC server
-          command: |
-            vncserver :1 -geometry 1280x720 -depth 24
-            
-            #In the example above, we use the XFCE desktop environment and TightVNC server. Adjust the configuration according to your requirements.
-
+            # Install Services App on emulator, Will use the `services_app-demo-basic-debug.apk` artifact downloaded from the get artifact jobs
+            adb install services_app-demo-basic-debug.apk
+            adb shell pm list packages
       # Runs command to push the ODK-X App Designer files to the emulator
       - push-appdesigner-files-to-device   
 
@@ -290,13 +270,7 @@ jobs:
             # Install Survey App on emulator, Will use the `survey_app-demo-basic-debug.apk` artifact downloaded from the get artifact jobs
             adb install survey_app-demo-basic-debug.apk
             adb shell pm list packages
-      - run:
-          name: Install 'Services' app from downloaded artifacts to emulator
-          command: |
 
-            # Install Services App on emulator, Will use the `services_app-demo-basic-debug.apk` artifact downloaded from the get artifact jobs
-            adb install services_app-demo-basic-debug.apk
-            adb shell pm list packages
 
       # - android/run-tests:
       #     test-command: ./gradlew test
@@ -305,9 +279,8 @@ jobs:
           test-command: ./gradlew connectedAndroidTest
           max-tries: 1
           
-      - android/save-gradle-cache:
-          cache-prefix: v1
-
+      # - android/save-gradle-cache:
+      #     cache-prefix: v1
       - store_artifacts:
           name: Store Test Results
           path: tables_app/build/outputs/androidTest-results
