@@ -232,10 +232,10 @@ commands:
             npm install -g grunt-cli
             grunt --version
       - run:
-          name: clone app designer repository to environment
+          name: Clone App Designer repository to environment
           command: |
             # should replace main with CIRCLE_BRANCH env var
-            git clone -b "main" "https://github.com/$GITHUB_ACTOR/app-designer.git"
+            git clone -b "main" "https://github.com/odk-x/app-designer.git"
             ls -d */
             cd app-designer/
             ls -d */
@@ -251,13 +251,13 @@ commands:
 
 orbs:
   android: circleci/android@2.5.0
-  node: circleci/node@5.2.0
+  node: circleci/node@6.1.0
 jobs:
   test:
     description: Runs unit tests and instrumented tests on the Tables app
     executor:
       name: android/android-machine
-      resource-class: xlarge
+      resource-class: large
       tag: 2024.01.1
     
     working_directory: ~/project
@@ -306,7 +306,7 @@ jobs:
       - run:
           name: Install 'Services' app from downloaded artifacts to emulator
           command: |
-            # Install Services App on emulator, Will use the `services_app-snapshot-debug.apk` artifact downloaded from the get artifact jobs
+            # Install Services App on emulator, Will use the `services_app-snapshot-debug.apk` artifact downloaded from the `get artifact` command
             adb install services_app-snapshot-debug.apk
             adb shell pm list packages
 
@@ -314,7 +314,7 @@ jobs:
           name: Install 'Survey' app from downloaded artifacts to emulator
           command: |
             
-            # Install Survey App on emulator, Will use the `survey_app-snapshot-debug.apk` artifact downloaded from the get artifact jobs
+            # Install Survey App on emulator, Will use the `survey_app-snapshot-debug.apk` artifact downloaded from the `get artifact` command
             adb install survey_app-snapshot-debug.apk
             adb shell pm list packages
 
